@@ -15,8 +15,22 @@ import { db } from './firebase'
 
 const recipesCollection = collection(db, 'recipes')
 
+/**
+ * Un bug de guardado anterior dejaba algunas recetas en Firestore sin
+ * ingredients/steps/mealTimes/tags como array (el campo directamente no
+ * existía en el documento). Se normaliza aquí, al entrar los datos desde
+ * Firestore, para que el resto de la app pueda confiar en el tipo `Recipe`
+ * sin comprobaciones repetidas en cada componente.
+ */
 function toRecipe(id: string, data: Record<string, unknown>): Recipe {
-  return { id, ...data } as Recipe
+  return {
+    ...data,
+    id,
+    ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
+    steps: Array.isArray(data.steps) ? data.steps : [],
+    mealTimes: Array.isArray(data.mealTimes) ? data.mealTimes : [],
+    tags: Array.isArray(data.tags) ? data.tags : [],
+  } as Recipe
 }
 
 /**
