@@ -39,7 +39,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="flex min-h-svh flex-col bg-cream-100">
+        <div className="flex min-h-svh flex-col overflow-x-hidden bg-cream-100">
           <NavBar />
           <div className="flex-1">
             <AnimatedRoutes />

@@ -32,7 +32,12 @@ export function IngredientOrbit({ ingredients }: IngredientOrbitProps) {
   if (ingredients.length === 0) return null
 
   return (
-    <div className="h-[420px] w-full touch-pan-y sm:h-[520px]">
+    // overflow-hidden es imprescindible: drei's <Html transform> proyecta
+    // las tarjetas de ingredientes como elementos DOM reales posicionados
+    // por matriz 3D, y en viewports estrechos/altos (móvil) esa proyección
+    // puede colocarlas miles de píxeles fuera del lienzo — sin recorte,
+    // eso se traduce en scroll horizontal de toda la página.
+    <div className="h-[420px] w-full touch-pan-y overflow-hidden sm:h-[520px]">
       <Canvas
         camera={{ position: [0, 0, cameraZ], fov: 42 }}
         dpr={[1, 1.5]}
