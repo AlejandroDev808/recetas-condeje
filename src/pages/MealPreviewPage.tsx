@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { RecipeDetailView } from '@/components/recipe/RecipeDetailView'
 import { useSaveMealDbRecipe } from '@/hooks/useSaveMealDbRecipe'
+import {
+  getMealDbTranslation,
+  type TranslatableRecipeContent,
+} from '@/lib/recipeTranslation'
 import { getMealById, mapMealDbToRecipeDraft } from '@/services/mealdb'
 import type { MealDbMealRaw } from '@/types'
 
@@ -16,12 +20,15 @@ export function MealPreviewPage() {
   const [meal, setMeal] = useState<MealDbMealRaw | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [translation, setTranslation] =
+    useState<TranslatableRecipeContent | null>(null)
   const { user, state, savedId, save } = useSaveMealDbRecipe()
 
   useEffect(() => {
     if (!id) return
     setLoading(true)
     setNotFound(false)
+    setTranslation(null)
     getMealById(id)
       .then((result) => {
         if (!result) {
@@ -37,6 +44,27 @@ export function MealPreviewPage() {
     () => (meal ? mapMealDbToRecipeDraft(meal) : null),
     [meal],
   )
+
+  useEffect(() => {
+    if (!draft || !id) return
+    let cancelled = false
+
+    getMealDbTranslation(id, {
+      title: draft.title,
+      ingredients: draft.ingredients,
+      steps: draft.steps,
+    })
+      .then((result) => {
+        if (!cancelled) setTranslation(result)
+      })
+      .catch(() => {
+        // Sin traducción se sigue mostrando en inglés; no bloquea la vista.
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [draft, id])
 
   if (loading) {
     return (
@@ -54,14 +82,16 @@ export function MealPreviewPage() {
     )
   }
 
+  const content = translation ?? draft
+
   return (
     <RecipeDetailView
-      title={draft.title}
+      title={content.title}
       imageUrl={draft.imageUrl}
       mealTimes={draft.mealTimes}
       tags={draft.tags}
-      ingredients={draft.ingredients}
-      steps={draft.steps}
+      ingredients={content.ingredients}
+      steps={content.steps}
       actions={
         state === 'saved' && savedId ? (
           <Link

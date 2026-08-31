@@ -1,24 +1,22 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { useScrollPositionRef } from '@/hooks/useScrollPosition'
 import { preloadIconTextures } from '@/lib/gameIconTexture'
 import { resolveIngredientIcon } from '@/lib/ingredientIcons'
-import { spiralPositions } from '@/lib/spiralLayout'
 import type { Ingredient } from '@/types'
 import { FloatingIngredient } from './FloatingIngredient'
 
 interface IngredientSceneProps {
   ingredients: Ingredient[]
+  /** Calculadas en IngredientOrbit (no aquí) para poder alejar la cámara
+   * según lo que ocupen antes de montar el <Canvas>. */
+  positions: [number, number, number][]
 }
 
-export function IngredientScene({ ingredients }: IngredientSceneProps) {
+export function IngredientScene({ ingredients, positions }: IngredientSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const scrollY = useScrollPositionRef()
-  const positions = useMemo(
-    () => spiralPositions(ingredients.length),
-    [ingredients.length],
-  )
 
   // Precarga solo los iconos de esta receta (no el set completo de
   // game-icons.net), y los deduplica: varios ingredientes pueden resolver

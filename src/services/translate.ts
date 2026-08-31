@@ -62,20 +62,31 @@ async function translateViaMyMemory(
 }
 
 /**
- * TheMealDB solo tiene contenido en inglés, así que la query de búsqueda se
- * traduce antes de consultarla. Encadena Google -> MyMemory -> texto
- * original: si ambas fallan (red, límite de la API...) se usa la query tal
- * cual en vez de romper la búsqueda — peor resultado, pero la app sigue
- * funcionando.
+ * Traduce un texto encadenando Google -> MyMemory -> texto original: si
+ * ambas fallan (red, límite de la API...) se devuelve el texto tal cual en
+ * vez de romper la vista — peor resultado, pero la app sigue funcionando.
  */
-export async function translateToEnglish(text: string): Promise<string> {
+export async function translateText(
+  text: string,
+  from: string,
+  to: string,
+): Promise<string> {
+  const trimmed = text.trim()
+  if (!trimmed) return text
+
   try {
-    return (await translateViaGoogle(text, 'es', 'en')).trim()
+    return (await translateViaGoogle(trimmed, from, to)).trim()
   } catch {
     try {
-      return (await translateViaMyMemory(text, 'es', 'en')).trim()
+      return (await translateViaMyMemory(trimmed, from, to)).trim()
     } catch {
       return text
     }
   }
+}
+
+/** TheMealDB solo tiene contenido en inglés, así que la query de búsqueda
+ * se traduce antes de consultarla. */
+export async function translateToEnglish(text: string): Promise<string> {
+  return translateText(text, 'es', 'en')
 }

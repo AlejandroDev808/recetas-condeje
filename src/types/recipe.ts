@@ -43,6 +43,18 @@ export interface Recipe {
   sourceId?: string
   createdAt: number
   updatedAt: number
+  /**
+   * Traducción EN->ES cacheada de una receta importada de TheMealDB
+   * (`source: 'mealdb'`); se rellena la primera vez que se abre el
+   * detalle y se guarda en el propio documento para no volver a llamar al
+   * servicio de traducción en visitas futuras. Las recetas propias
+   * (`source: 'own'`) nunca la tienen: ya se escriben en español.
+   */
+  translation?: {
+    title: string
+    ingredients: Ingredient[]
+    steps: string[]
+  }
 }
 
 export type RecipeDraft = Omit<

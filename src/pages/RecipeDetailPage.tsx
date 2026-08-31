@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { RecipeDetailView } from '@/components/recipe/RecipeDetailView'
 import { useAuth } from '@/context/AuthContext'
-import { deleteRecipe, getRecipe } from '@/services/recipes'
+import { getMealDbTranslation } from '@/lib/recipeTranslation'
+import { deleteRecipe, getRecipe, updateRecipe } from '@/services/recipes'
 import type { Recipe } from '@/types'
 
 export function RecipeDetailPage() {
@@ -14,16 +15,51 @@ export function RecipeDetailPage() {
 
   useEffect(() => {
     if (!id) return
+    let cancelled = false
+
     setLoading(true)
     getRecipe(id)
-      .then(setRecipe)
-      .finally(() => setLoading(false))
+      .then((result) => {
+        if (cancelled) return
+        setRecipe(result)
+        setLoading(false)
+        if (!result || result.source !== 'mealdb' || result.translation) {
+          return
+        }
+
+        // Se traduce solo la primera vez: el resultado se guarda en el
+        // propio documento para que las próximas visitas ya vengan en
+        // español sin volver a llamar al servicio de traducción.
+        getMealDbTranslation(result.id, {
+          title: result.title,
+          ingredients: result.ingredients,
+          steps: result.steps,
+        })
+          .then((translation) => {
+            if (cancelled) return
+            setRecipe((prev) =>
+              prev && prev.id === result.id ? { ...prev, translation } : prev,
+            )
+            void updateRecipe(result.id, { translation })
+          })
+          .catch(() => {
+            // Si la traducción falla, la receta se queda en inglés: no es
+            // motivo para romper la vista de detalle.
+          })
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   async function handleDelete() {
     if (!recipe) return
     const confirmed = window.confirm(
-      `¿Borrar "${recipe.title}" de tu cuaderno? Esta acción no se puede deshacer.`,
+      `¿Borrar "${recipe.translation?.title ?? recipe.title}" de tu cuaderno? Esta acción no se puede deshacer.`,
     )
     if (!confirmed) return
     await deleteRecipe(recipe.id)
@@ -47,15 +83,18 @@ export function RecipeDetailPage() {
   }
 
   const isOwner = user?.uid === recipe.ownerId
+  // Las recetas propias nunca tienen `translation` (ya se escriben en
+  // español); en las de TheMealDB se usa en cuanto está disponible.
+  const content = recipe.translation ?? recipe
 
   return (
     <RecipeDetailView
-      title={recipe.title}
+      title={content.title}
       imageUrl={recipe.imageUrl}
       mealTimes={recipe.mealTimes}
       tags={recipe.tags}
-      ingredients={recipe.ingredients}
-      steps={recipe.steps}
+      ingredients={content.ingredients}
+      steps={content.steps}
       actions={
         isOwner ? (
           <div className="flex gap-3">
