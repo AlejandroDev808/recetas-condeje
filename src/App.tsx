@@ -7,6 +7,7 @@ import {
   useLocation,
 } from 'react-router-dom'
 import { Footer } from '@/components/layout/Footer'
+import { MusicPlayer } from '@/components/layout/MusicPlayer'
 import { NavBar } from '@/components/layout/NavBar'
 import { AuthProvider } from '@/context/AuthContext'
 import { LoginPage } from '@/pages/LoginPage'
@@ -45,6 +46,7 @@ function App() {
             <AnimatedRoutes />
           </div>
           <Footer />
+          <MusicPlayer />
         </div>
       </BrowserRouter>
     </AuthProvider>
