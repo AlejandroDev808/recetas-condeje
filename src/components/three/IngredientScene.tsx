@@ -1,10 +1,11 @@
 import { useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useScrollPositionRef } from '@/hooks/useScrollPosition'
+import { preloadIconTextures } from '@/lib/gameIconTexture'
+import { resolveIngredientIcon } from '@/lib/ingredientIcons'
 import { spiralPositions } from '@/lib/spiralLayout'
 import type { Ingredient } from '@/types'
-import { DecorativeShapes } from './DecorativeShapes'
 import { FloatingIngredient } from './FloatingIngredient'
 
 interface IngredientSceneProps {
@@ -19,6 +20,19 @@ export function IngredientScene({ ingredients }: IngredientSceneProps) {
     [ingredients.length],
   )
 
+  // Precarga solo los iconos de esta receta (no el set completo de
+  // game-icons.net), y los deduplica: varios ingredientes pueden resolver
+  // al mismo icono (p. ej. dos hierbas distintas sin match específico).
+  useEffect(() => {
+    const refs = new Map(
+      ingredients.map((ingredient) => {
+        const ref = resolveIngredientIcon(ingredient.name)
+        return [`${ref.author}/${ref.slug}`, ref] as const
+      }),
+    )
+    preloadIconTextures([...refs.values()])
+  }, [ingredients])
+
   useFrame(() => {
     const group = groupRef.current
     if (!group) return
@@ -28,7 +42,6 @@ export function IngredientScene({ ingredients }: IngredientSceneProps) {
 
   return (
     <group ref={groupRef}>
-      <DecorativeShapes />
       {ingredients.map((ingredient, i) => (
         <FloatingIngredient
           key={`${ingredient.name}-${i}`}

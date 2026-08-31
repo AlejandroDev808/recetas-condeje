@@ -1,6 +1,7 @@
 import { Float, Html } from '@react-three/drei'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import type { Ingredient } from '@/types'
+import { IconSprite } from './IconSprite'
 
 interface FloatingIngredientProps {
   ingredient: Ingredient
@@ -26,6 +27,12 @@ export function FloatingIngredient({
       rotationIntensity={hovered ? 0.9 : 0.35}
     >
       <group position={position}>
+        <group position={[0, 1.05, 0]}>
+          <Suspense fallback={null}>
+            <IconSprite ingredientName={ingredient.name} />
+          </Suspense>
+        </group>
+
         {/* transform: proyecta el HTML como un plano con transform 3D real
             (no un billboard plano), así el giro de <Float> se ve en la
             tarjeta en vez de quedar "pegado" siempre de cara a cámara. */}

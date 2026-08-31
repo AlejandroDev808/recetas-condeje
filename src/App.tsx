@@ -6,6 +6,7 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom'
+import { Footer } from '@/components/layout/Footer'
 import { NavBar } from '@/components/layout/NavBar'
 import { AuthProvider } from '@/context/AuthContext'
 import { LoginPage } from '@/pages/LoginPage'
@@ -38,9 +39,12 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-svh bg-cream-100">
+        <div className="flex min-h-svh flex-col bg-cream-100">
           <NavBar />
-          <AnimatedRoutes />
+          <div className="flex-1">
+            <AnimatedRoutes />
+          </div>
+          <Footer />
         </div>
       </BrowserRouter>
     </AuthProvider>
