@@ -1,0 +1,50 @@
+import { AnimatePresence } from 'framer-motion'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom'
+import { NavBar } from '@/components/layout/NavBar'
+import { AuthProvider } from '@/context/AuthContext'
+import { LoginPage } from '@/pages/LoginPage'
+import { MealPreviewPage } from '@/pages/MealPreviewPage'
+import { NotebookPage } from '@/pages/NotebookPage'
+import { RecipeDetailPage } from '@/pages/RecipeDetailPage'
+import { RecipeFormPage } from '@/pages/RecipeFormPage'
+import { SearchPage } from '@/pages/SearchPage'
+
+function AnimatedRoutes() {
+  const location = useLocation()
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Navigate to="/buscar" replace />} />
+        <Route path="/buscar" element={<SearchPage />} />
+        <Route path="/buscar/:id" element={<MealPreviewPage />} />
+        <Route path="/mi-cuaderno" element={<NotebookPage />} />
+        <Route path="/mi-cuaderno/nueva" element={<RecipeFormPage />} />
+        <Route path="/mi-cuaderno/:id/editar" element={<RecipeFormPage />} />
+        <Route path="/recetas/:id" element={<RecipeDetailPage />} />
+        <Route path="/entrar" element={<LoginPage />} />
+      </Routes>
+    </AnimatePresence>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="min-h-svh bg-cream-100">
+          <NavBar />
+          <AnimatedRoutes />
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
+  )
+}
+
+export default App

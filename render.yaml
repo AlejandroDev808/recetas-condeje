@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: micuaderno
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    routes:
+      # SPA con react-router (BrowserRouter): sin esto, refrescar en
+      # /recetas/abc123 o /mi-cuaderno/nueva devuelve 404, porque esas
+      # rutas no existen como ficheros — todas deben servir index.html y
+      # dejar que React Router resuelva la ruta en el cliente.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # sync: false = variable declarada aquí pero con el valor puesto a
+      # mano en el panel de Render (Environment), no en este fichero. La
+      # config de Firebase no es un secreto crítico (viaja igualmente al
+      # cliente), pero conviene no comprometerse a un proyecto de Firebase
+      # concreto dentro del repo.
+      - key: VITE_FIREBASE_API_KEY
+        sync: false
+      - key: VITE_FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: VITE_FIREBASE_PROJECT_ID
+        sync: false
+      - key: VITE_FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: VITE_FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: VITE_FIREBASE_APP_ID
+        sync: false
