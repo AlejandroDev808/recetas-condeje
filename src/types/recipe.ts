@@ -20,6 +20,14 @@ export interface Ingredient {
   name: string
   quantity: string
   unit: string
+  /**
+   * Nombre original en inglés (tal cual lo da TheMealDB), presente solo en
+   * ingredientes ya traducidos al español: `name` se usa para mostrar,
+   * pero el matching de icono (`resolveIngredientIcon`) debe usar siempre
+   * `originalName` cuando exista, porque las reglas de icono buscan
+   * palabras clave en inglés.
+   */
+  originalName?: string
 }
 
 /**

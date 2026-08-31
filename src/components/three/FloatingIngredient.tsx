@@ -29,7 +29,13 @@ export function FloatingIngredient({
       <group position={position}>
         <group position={[0, 1.05, 0]}>
           <Suspense fallback={null}>
-            <IconSprite ingredientName={ingredient.name} />
+            {/* El icono siempre se elige por el nombre en inglés original
+                (aunque la tarjeta de abajo muestre el nombre traducido):
+                las reglas de ingredientIcons.ts buscan palabras clave en
+                inglés. */}
+            <IconSprite
+              ingredientName={ingredient.originalName ?? ingredient.name}
+            />
           </Suspense>
         </group>
 

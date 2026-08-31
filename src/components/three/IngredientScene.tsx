@@ -24,7 +24,11 @@ export function IngredientScene({ ingredients, positions }: IngredientSceneProps
   useEffect(() => {
     const refs = new Map(
       ingredients.map((ingredient) => {
-        const ref = resolveIngredientIcon(ingredient.name)
+        // Igual que en FloatingIngredient: el icono se resuelve por el
+        // nombre en inglés original, no por el traducido.
+        const ref = resolveIngredientIcon(
+          ingredient.originalName ?? ingredient.name,
+        )
         return [`${ref.author}/${ref.slug}`, ref] as const
       }),
     )

@@ -87,6 +87,10 @@ async function translateContent(
   const ingredients = content.ingredients.map((ingredient) => ({
     ...ingredient,
     name: nameByOriginal.get(ingredient.name) ?? ingredient.name,
+    // El matching de icono (resolveIngredientIcon) busca palabras clave en
+    // inglés: sin este campo, un ingrediente ya traducido ("Diente de ajo")
+    // nunca haría match y caería siempre al icono genérico.
+    originalName: ingredient.name,
   }))
 
   return { title, ingredients, steps: translatedSteps }
