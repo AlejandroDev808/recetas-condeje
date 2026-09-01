@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { staggerItem } from '@/lib/animations'
 import { useSaveMealDbRecipe } from '@/hooks/useSaveMealDbRecipe'
 import type { MealDbResult } from '@/hooks/useMealDbSearch'
@@ -11,6 +11,7 @@ interface MealResultCardProps {
 
 export function MealResultCard({ meal }: MealResultCardProps) {
   const { user, state, savedId, save } = useSaveMealDbRecipe()
+  const location = useLocation()
 
   return (
     <motion.div variants={staggerItem}>
@@ -43,20 +44,26 @@ export function MealResultCard({ meal }: MealResultCardProps) {
               >
                 Guardada en tu cuaderno · ver receta →
               </Link>
+            ) : !user ? (
+              <Link
+                to="/entrar"
+                state={{ from: location }}
+                className="block w-full rounded-full bg-cream-200 px-4 py-2 text-center text-sm font-medium text-espresso-600 transition-colors hover:bg-cream-300"
+              >
+                Inicia sesión para guardar
+              </Link>
             ) : (
               <button
                 type="button"
                 onClick={() => void save(meal)}
-                disabled={!user || state === 'saving'}
+                disabled={state === 'saving'}
                 className="w-full rounded-full bg-terracotta-500 px-4 py-2 text-sm font-medium text-cream-50 transition-colors hover:bg-terracotta-600 disabled:cursor-not-allowed disabled:bg-espresso-500/15 disabled:text-espresso-500/50"
               >
-                {!user
-                  ? 'Inicia sesión para guardar'
-                  : state === 'saving'
-                    ? 'Guardando…'
-                    : state === 'error'
-                      ? 'Error al guardar, reintentar'
-                      : 'Guardar en mi cuaderno'}
+                {state === 'saving'
+                  ? 'Guardando…'
+                  : state === 'error'
+                    ? 'Error al guardar, reintentar'
+                    : 'Guardar en mi cuaderno'}
               </button>
             )}
           </div>

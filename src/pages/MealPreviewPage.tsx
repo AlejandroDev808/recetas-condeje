@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { RecipeDetailView } from '@/components/recipe/RecipeDetailView'
 import { useSaveMealDbRecipe } from '@/hooks/useSaveMealDbRecipe'
 import {
@@ -23,6 +23,7 @@ export function MealPreviewPage() {
   const [translation, setTranslation] =
     useState<TranslatableRecipeContent | null>(null)
   const { user, state, savedId, save } = useSaveMealDbRecipe()
+  const location = useLocation()
 
   useEffect(() => {
     if (!id) return
@@ -100,20 +101,26 @@ export function MealPreviewPage() {
           >
             Guardada en tu cuaderno · ver receta →
           </Link>
+        ) : !user ? (
+          <Link
+            to="/entrar"
+            state={{ from: location }}
+            className="inline-block rounded-full bg-cream-200 px-5 py-2 text-sm font-medium text-espresso-600 transition-colors hover:bg-cream-300"
+          >
+            Inicia sesión para guardar
+          </Link>
         ) : (
           <button
             type="button"
             onClick={() => meal && void save(meal)}
-            disabled={!user || state === 'saving'}
+            disabled={state === 'saving'}
             className="rounded-full bg-terracotta-500 px-5 py-2 text-sm font-medium text-cream-50 transition-colors hover:bg-terracotta-600 disabled:cursor-not-allowed disabled:bg-espresso-500/15 disabled:text-espresso-500/50"
           >
-            {!user
-              ? 'Inicia sesión para guardar'
-              : state === 'saving'
-                ? 'Guardando…'
-                : state === 'error'
-                  ? 'Error al guardar, reintentar'
-                  : 'Guardar en mi cuaderno'}
+            {state === 'saving'
+              ? 'Guardando…'
+              : state === 'error'
+                ? 'Error al guardar, reintentar'
+                : 'Guardar en mi cuaderno'}
           </button>
         )
       }

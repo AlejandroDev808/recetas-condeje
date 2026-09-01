@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { SignInPrompt } from '@/components/auth/SignInPrompt'
 import { RecipeForm } from '@/components/recipe/RecipeForm'
 import { useAuth } from '@/context/AuthContext'
 import { pageTransition } from '@/lib/animations'
@@ -49,17 +50,7 @@ export function RecipeFormPage() {
 
   if (!authLoading && !user) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
-        <p className="text-espresso-600">
-          Inicia sesión para crear o editar recetas.
-        </p>
-        <Link
-          to="/entrar"
-          className="mt-4 inline-block rounded-full bg-terracotta-500 px-5 py-2 font-medium text-cream-50"
-        >
-          Ir a iniciar sesión
-        </Link>
-      </div>
+      <SignInPrompt message="Inicia sesión para crear o editar recetas." />
     )
   }
 

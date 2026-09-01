@@ -1,17 +1,32 @@
 import { motion } from 'framer-motion'
 import { type FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  type Location,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
+import { GoogleIcon } from '@/components/auth/GoogleIcon'
 import { useAuth } from '@/context/AuthContext'
 import { pageTransition } from '@/lib/animations'
 
+interface LoginLocationState {
+  from?: Location
+}
+
 export function LoginPage() {
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const { signIn, signUp, signInWithGoogle, authError, clearAuthError } =
+    useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as LoginLocationState | null)?.from
+  const returnTo = from ? `${from.pathname}${from.search}` : '/mi-cuaderno'
+
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -23,7 +38,7 @@ export function LoginPage() {
       } else {
         await signUp(email, password)
       }
-      navigate('/mi-cuaderno')
+      navigate(returnTo, { replace: true })
     } catch {
       setError('No se ha podido iniciar sesión. Revisa tus datos.')
     } finally {
@@ -33,11 +48,15 @@ export function LoginPage() {
 
   async function handleGoogle() {
     setError(null)
+    clearAuthError()
+    setGoogleLoading(true)
     try {
-      await signInWithGoogle()
-      navigate('/mi-cuaderno')
+      // Redirige a Google: si todo va bien la pestaña navega fuera de la
+      // app y este código no continúa hasta volver (página recargada).
+      await signInWithGoogle(returnTo)
     } catch {
       setError('No se ha podido iniciar sesión con Google.')
+      setGoogleLoading(false)
     }
   }
 
@@ -77,7 +96,9 @@ export function LoginPage() {
           className="w-full rounded-xl border border-espresso-500/15 bg-cream-50 px-4 py-2.5 text-espresso-700 placeholder:text-espresso-500/40 focus:border-terracotta-400 focus:outline-none"
         />
 
-        {error && <p className="text-sm text-terracotta-600">{error}</p>}
+        {(error ?? authError) && (
+          <p className="text-sm text-terracotta-600">{error ?? authError}</p>
+        )}
 
         <button
           type="submit"
@@ -94,10 +115,12 @@ export function LoginPage() {
 
       <button
         type="button"
-        onClick={handleGoogle}
-        className="mt-3 w-full rounded-full border border-espresso-500/15 bg-cream-50 px-4 py-2.5 font-medium text-espresso-700 transition-colors hover:bg-cream-200"
+        onClick={() => void handleGoogle()}
+        disabled={googleLoading}
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-espresso-500/15 bg-cream-50 px-4 py-2.5 font-medium text-espresso-700 transition-colors hover:bg-cream-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Continuar con Google
+        <GoogleIcon className="h-5 w-5" />
+        {googleLoading ? 'Redirigiendo a Google…' : 'Continuar con Google'}
       </button>
 
       <button
