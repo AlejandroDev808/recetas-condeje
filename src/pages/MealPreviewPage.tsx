@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { RecipeDetailView } from '@/components/recipe/RecipeDetailView'
 import { useSaveMealDbRecipe } from '@/hooks/useSaveMealDbRecipe'
+import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 import {
   getMealDbTranslation,
   type TranslatableRecipeContent,
@@ -24,6 +25,8 @@ export function MealPreviewPage() {
     useState<TranslatableRecipeContent | null>(null)
   const { user, state, savedId, save } = useSaveMealDbRecipe()
   const location = useLocation()
+
+  useScrollRestoration(!loading)
 
   useEffect(() => {
     if (!id) return

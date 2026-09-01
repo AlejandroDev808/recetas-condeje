@@ -13,11 +13,17 @@ import type {
 
 export type MealDbResult = MealDbMealRaw | MealDbMealSummary
 
-export function useMealDbSearch() {
-  const [mode, setMode] = useState<MealDbSearchMode>('name')
-  const [query, setQuery] = useState('')
+export function useMealDbSearch(
+  initialMode: MealDbSearchMode = 'name',
+  initialQuery = '',
+) {
+  const [mode, setMode] = useState<MealDbSearchMode>(initialMode)
+  const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<MealDbResult[]>([])
-  const [loading, setLoading] = useState(false)
+  // Si hay query inicial (restaurada desde la URL) arranca ya en "cargando":
+  // el buscador la relanza en un efecto nada más montar, y así no hay un
+  // primer render en falso "sin cargar, sin resultados" antes de que arranque.
+  const [loading, setLoading] = useState(initialQuery.trim().length > 0)
   const [error, setError] = useState<string | null>(null)
   // Query realmente usada contra TheMealDB tras traducir. null si coincide
   // con lo escrito (o en modo categoría, que ya usa el valor en inglés).

@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { MealResultCard } from '@/components/recipe/MealResultCard'
 import { useMealDbSearch } from '@/hooks/useMealDbSearch'
+import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 import { pageTransition, staggerContainer } from '@/lib/animations'
 import { categoryLabelEs } from '@/lib/categoryLabels'
 import { getCategories } from '@/services/mealdb'
@@ -13,7 +15,22 @@ const MODE_LABELS: Record<MealDbSearchMode, string> = {
   category: 'Categoría',
 }
 
+function isSearchMode(value: string | null): value is MealDbSearchMode {
+  return value === 'name' || value === 'ingredient' || value === 'category'
+}
+
 export function SearchPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Se congelan en el primer render: reflejan la búsqueda de la URL (si el
+  // usuario llega con "atrás" desde el detalle de una receta) y no deben
+  // volver a leerse en renders posteriores, cuando la URL ya la actualizamos
+  // nosotros mismos al buscar.
+  const [initialMode] = useState<MealDbSearchMode>(() => {
+    const raw = searchParams.get('mode')
+    return isSearchMode(raw) ? raw : 'name'
+  })
+  const [initialQuery] = useState(() => searchParams.get('q') ?? '')
+
   const {
     mode,
     setMode,
@@ -24,8 +41,11 @@ export function SearchPage() {
     error,
     translatedQuery,
     search,
-  } = useMealDbSearch()
+  } = useMealDbSearch(initialMode, initialQuery)
   const [categories, setCategories] = useState<MealDbCategory[]>([])
+  const isFirstModeChange = useRef(true)
+
+  useScrollRestoration(!loading)
 
   useEffect(() => {
     getCategories()
@@ -33,12 +53,24 @@ export function SearchPage() {
       .catch(() => setCategories([]))
   }, [])
 
+  // Restaura la búsqueda reflejada en la URL nada más montar (solo una vez):
+  // así volver con "atrás" desde el detalle de una receta recupera el mismo
+  // término y los mismos resultados en vez de un buscador vacío.
+  useEffect(() => {
+    if (initialQuery) void search(initialMode, initialQuery)
+  }, [initialMode, initialQuery, search])
+
   // Al cambiar de modo se limpia la query. Aparte, y solo si seguimos en
   // modo categoría con la query aún vacía, se rellena con la primera
   // categoría en cuanto llegan de la API — en efectos separados para que
   // cargar categorías no borre lo que el usuario esté escribiendo en modo
-  // Nombre/Ingrediente.
+  // Nombre/Ingrediente. Se ignora el primer disparo (al montar) para no
+  // borrar la query restaurada desde la URL.
   useEffect(() => {
+    if (isFirstModeChange.current) {
+      isFirstModeChange.current = false
+      return
+    }
     setQuery('')
   }, [mode, setQuery])
 
@@ -51,6 +83,12 @@ export function SearchPage() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     void search(mode, query)
+    // replace: la propia página de búsqueda no debería acumular una entrada
+    // de historial por cada término buscado, solo reflejar el último para
+    // que "atrás" desde el detalle de una receta vuelva aquí con esta query.
+    setSearchParams(query.trim() ? { mode, q: query.trim() } : {}, {
+      replace: true,
+    })
   }
 
   return (
