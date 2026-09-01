@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="border-t border-espresso-500/10 px-4 py-6 text-center text-xs text-espresso-500/60">
+    <footer className="border-t border-espresso-500/10 px-4 pt-6 pb-[calc(var(--safe-area-bottom)_+_1.5rem)] text-center text-xs text-espresso-500/60">
       <a
         href="https://game-icons.net"
         target="_blank"

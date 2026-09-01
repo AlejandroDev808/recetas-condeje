@@ -51,7 +51,7 @@ export function MusicPlayer() {
         title={playing ? 'Pausar música ambiente' : 'Reproducir música ambiente'}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
-        className={`fixed right-5 bottom-5 z-40 flex h-14 w-14 items-center justify-center rounded-full ring-1 shadow-warm-lg backdrop-blur-sm transition-colors duration-300 ${
+        className={`fixed right-5 bottom-[calc(var(--safe-area-bottom)_+_1.25rem)] z-40 flex h-14 w-14 items-center justify-center rounded-full ring-1 shadow-warm-lg backdrop-blur-sm transition-colors duration-300 ${
           playing
             ? 'bg-terracotta-500 text-cream-50 ring-terracotta-600/40'
             : 'bg-cream-50/95 text-terracotta-600 ring-espresso-500/10 hover:bg-cream-200'

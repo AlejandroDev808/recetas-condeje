@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "66024386153",
+    "project_id": "recetas-condeje",
+    "storage_bucket": "recetas-condeje.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66024386153:android:14cef54e73ad53665ebcf8",
+        "android_client_info": {
+          "package_name": "com.alejandrodev.micuaderno"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "66024386153-lmnchrtp51q4e4qeuc4uovtlud2fp4sg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alejandrodev.micuaderno",
+            "certificate_hash": "b45cfe78499b88e4963148b06f4f03a7d57e1877"
+          }
+        },
+        {
+          "client_id": "66024386153-gmp42216timp5lqq4srs81ruij9v05db.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYJX9DyXAvggzE5IWjsVogPFdfhpxcdRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "66024386153-gmp42216timp5lqq4srs81ruij9v05db.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

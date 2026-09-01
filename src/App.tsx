@@ -10,6 +10,8 @@ import { Footer } from '@/components/layout/Footer'
 import { MusicPlayer } from '@/components/layout/MusicPlayer'
 import { NavBar } from '@/components/layout/NavBar'
 import { AuthProvider } from '@/context/AuthContext'
+import { useAndroidBackButton } from '@/hooks/useAndroidBackButton'
+import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MealPreviewPage } from '@/pages/MealPreviewPage'
 import { NotebookPage } from '@/pages/NotebookPage'
@@ -31,8 +33,24 @@ function AnimatedRoutes() {
         <Route path="/mi-cuaderno/:id/editar" element={<RecipeFormPage />} />
         <Route path="/recetas/:id" element={<RecipeDetailPage />} />
         <Route path="/entrar" element={<LoginPage />} />
+        <Route path="/auth-callback" element={<AuthCallbackPage />} />
       </Routes>
     </AnimatePresence>
+  )
+}
+
+function AppShell() {
+  useAndroidBackButton()
+
+  return (
+    <div className="flex min-h-svh flex-col overflow-x-hidden bg-cream-100">
+      <NavBar />
+      <div className="flex-1">
+        <AnimatedRoutes />
+      </div>
+      <Footer />
+      <MusicPlayer />
+    </div>
   )
 }
 
@@ -40,14 +58,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="flex min-h-svh flex-col overflow-x-hidden bg-cream-100">
-          <NavBar />
-          <div className="flex-1">
-            <AnimatedRoutes />
-          </div>
-          <Footer />
-          <MusicPlayer />
-        </div>
+        <AppShell />
       </AuthProvider>
     </BrowserRouter>
   )

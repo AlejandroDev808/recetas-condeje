@@ -37,6 +37,13 @@
 @layer base {
   html {
     color-scheme: light;
+    /* En Capacitor (Android) el WebView dibuja edge-to-edge (ver
+       capacitor.config.ts): estas variables exponen las áreas seguras para
+       que la cabecera, el pie y los elementos flotantes no queden debajo de
+       la barra de estado/notch ni de la barra de gestos. En web normal
+       (fuera de una app instalada a pantalla completa) resuelven a 0px. */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   body {

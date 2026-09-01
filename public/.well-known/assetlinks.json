@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.alejandrodev.micuaderno",
+      "sha256_cert_fingerprints": [
+        "B3:76:DF:AD:71:EF:1A:4D:BE:A7:87:13:8A:26:1A:E0:30:B9:33:04:BC:69:ED:D6:46:75:62:C7:D1:D9:A2:83"
+      ]
+    }
+  }
+]

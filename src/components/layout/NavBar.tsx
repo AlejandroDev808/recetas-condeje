@@ -12,7 +12,7 @@ export function NavBar() {
   const location = useLocation()
 
   return (
-    <header className="sticky top-0 z-20 border-b border-espresso-500/10 bg-cream-100/80 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-espresso-500/10 bg-cream-100/80 pt-[var(--safe-area-top)] backdrop-blur-md">
       <nav className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
         <NavLink
           to="/"

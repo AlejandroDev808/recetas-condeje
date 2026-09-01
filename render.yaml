@@ -30,3 +30,5 @@ services:
         sync: false
       - key: VITE_FIREBASE_APP_ID
         sync: false
+      - key: VITE_GOOGLE_WEB_CLIENT_ID
+        sync: false

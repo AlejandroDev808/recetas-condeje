@@ -8,9 +8,18 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "seed:recipes": "tsx scripts/seedRecipes.ts"
+    "seed:recipes": "tsx scripts/seedRecipes.ts",
+    "cap:sync": "npm run build && npx cap sync android",
+    "cap:android": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/keyboard": "^8.0.5",
+    "@capacitor/status-bar": "^8.0.3",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "@tailwindcss/vite": "^4.3.3",
