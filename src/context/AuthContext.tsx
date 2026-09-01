@@ -1,10 +1,9 @@
 import {
   type User,
   createUserWithEmailAndPassword,
-  getRedirectResult,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithRedirect,
+  signInWithPopup,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
 import {
@@ -16,8 +15,6 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { auth, googleProvider } from '@/services/firebase'
-
-const RETURN_TO_KEY = 'auth:returnTo'
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'auth/account-exists-with-different-credential':
@@ -40,7 +37,7 @@ function getAuthErrorCode(error: unknown): string | undefined {
   return undefined
 }
 
-function describeAuthError(error: unknown): string {
+export function describeAuthError(error: unknown): string {
   const code = getAuthErrorCode(error)
   return (
     (code && AUTH_ERROR_MESSAGES[code]) ??
@@ -51,9 +48,6 @@ function describeAuthError(error: unknown): string {
 interface AuthContextValue {
   user: User | null
   loading: boolean
-  resolvingRedirect: boolean
-  authError: string | null
-  clearAuthError: () => void
   signUp: (email: string, password: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: (returnTo?: string) => Promise<void>
@@ -65,8 +59,6 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [resolvingRedirect, setResolvingRedirect] = useState(true)
-  const [authError, setAuthError] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -76,38 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  // Al volver de signInWithRedirect la app se recarga entera, así que este
-  // resultado se resuelve una vez al montar, y con estado de carga propio
-  // porque no coincide con el de onAuthStateChanged (que ya puede haber
-  // resuelto "sin usuario" antes de que el redirect termine de procesarse).
-  useEffect(() => {
-    let cancelled = false
-
-    getRedirectResult(auth)
-      .then((result) => {
-        if (cancelled || !result) return
-        const returnTo = sessionStorage.getItem(RETURN_TO_KEY)
-        if (returnTo) navigate(returnTo, { replace: true })
-      })
-      .catch((error) => {
-        if (!cancelled) setAuthError(describeAuthError(error))
-      })
-      .finally(() => {
-        sessionStorage.removeItem(RETURN_TO_KEY)
-        if (!cancelled) setResolvingRedirect(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [navigate])
-
   const value: AuthContextValue = {
     user,
     loading,
-    resolvingRedirect,
-    authError,
-    clearAuthError: () => setAuthError(null),
     signUp: async (email, password) => {
       await createUserWithEmailAndPassword(auth, email, password)
     },
@@ -115,14 +78,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, email, password)
     },
     signInWithGoogle: async (returnTo) => {
-      setAuthError(null)
-      // Se guarda antes de redirigir: al volver de Google la app se recarga
-      // entera y pierde cualquier estado en memoria.
-      sessionStorage.setItem(
-        RETURN_TO_KEY,
+      try {
+        await signInWithPopup(auth, googleProvider)
+      } catch (error) {
+        // El usuario cierra la ventana de Google sin completar el acceso:
+        // no es un error real, así que no se propaga ni se muestra nada.
+        if (getAuthErrorCode(error) === 'auth/popup-closed-by-user') return
+        throw error
+      }
+      navigate(
         returnTo ?? `${window.location.pathname}${window.location.search}`,
+        { replace: true },
       )
-      await signInWithRedirect(auth, googleProvider)
     },
     signOut: async () => {
       await firebaseSignOut(auth)

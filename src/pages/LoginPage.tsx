@@ -6,7 +6,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 import { GoogleIcon } from '@/components/auth/GoogleIcon'
-import { useAuth } from '@/context/AuthContext'
+import { describeAuthError, useAuth } from '@/context/AuthContext'
 import { pageTransition } from '@/lib/animations'
 
 interface LoginLocationState {
@@ -14,8 +14,7 @@ interface LoginLocationState {
 }
 
 export function LoginPage() {
-  const { signIn, signUp, signInWithGoogle, authError, clearAuthError } =
-    useAuth()
+  const { signIn, signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as LoginLocationState | null)?.from
@@ -48,14 +47,12 @@ export function LoginPage() {
 
   async function handleGoogle() {
     setError(null)
-    clearAuthError()
     setGoogleLoading(true)
     try {
-      // Redirige a Google: si todo va bien la pestaña navega fuera de la
-      // app y este código no continúa hasta volver (página recargada).
       await signInWithGoogle(returnTo)
-    } catch {
-      setError('No se ha podido iniciar sesión con Google.')
+    } catch (err) {
+      setError(describeAuthError(err))
+    } finally {
       setGoogleLoading(false)
     }
   }
@@ -96,9 +93,7 @@ export function LoginPage() {
           className="w-full rounded-xl border border-espresso-500/15 bg-cream-50 px-4 py-2.5 text-espresso-700 placeholder:text-espresso-500/40 focus:border-terracotta-400 focus:outline-none"
         />
 
-        {(error ?? authError) && (
-          <p className="text-sm text-terracotta-600">{error ?? authError}</p>
-        )}
+        {error && <p className="text-sm text-terracotta-600">{error}</p>}
 
         <button
           type="submit"
@@ -120,7 +115,7 @@ export function LoginPage() {
         className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-espresso-500/15 bg-cream-50 px-4 py-2.5 font-medium text-espresso-700 transition-colors hover:bg-cream-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <GoogleIcon className="h-5 w-5" />
-        {googleLoading ? 'Redirigiendo a Google…' : 'Continuar con Google'}
+        {googleLoading ? 'Conectando con Google…' : 'Continuar con Google'}
       </button>
 
       <button

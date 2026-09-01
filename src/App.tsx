@@ -9,7 +9,7 @@ import {
 import { Footer } from '@/components/layout/Footer'
 import { MusicPlayer } from '@/components/layout/MusicPlayer'
 import { NavBar } from '@/components/layout/NavBar'
-import { AuthProvider, useAuth } from '@/context/AuthContext'
+import { AuthProvider } from '@/context/AuthContext'
 import { LoginPage } from '@/pages/LoginPage'
 import { MealPreviewPage } from '@/pages/MealPreviewPage'
 import { NotebookPage } from '@/pages/NotebookPage'
@@ -36,37 +36,18 @@ function AnimatedRoutes() {
   )
 }
 
-function AppShell() {
-  const { resolvingRedirect } = useAuth()
-
-  // Mientras se resuelve el resultado de signInWithRedirect (justo al
-  // recargar tras volver de Google) se evita pintar rutas o el NavBar con
-  // un estado de sesión que todavía no es definitivo.
-  if (resolvingRedirect) {
-    return (
-      <div className="flex min-h-svh items-center justify-center bg-cream-100">
-        <p className="text-espresso-500/60">Un momento…</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex min-h-svh flex-col overflow-x-hidden bg-cream-100">
-      <NavBar />
-      <div className="flex-1">
-        <AnimatedRoutes />
-      </div>
-      <Footer />
-      <MusicPlayer />
-    </div>
-  )
-}
-
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppShell />
+        <div className="flex min-h-svh flex-col overflow-x-hidden bg-cream-100">
+          <NavBar />
+          <div className="flex-1">
+            <AnimatedRoutes />
+          </div>
+          <Footer />
+          <MusicPlayer />
+        </div>
       </AuthProvider>
     </BrowserRouter>
   )
