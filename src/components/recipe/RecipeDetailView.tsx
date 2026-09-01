@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Suspense, lazy, type ReactNode } from 'react'
+import { Suspense, lazy, useState, type ReactNode } from 'react'
 import { pageTransition } from '@/lib/animations'
 import { MEAL_TIME_LABELS, type Ingredient, type MealTime } from '@/types'
 
@@ -10,6 +10,17 @@ const IngredientOrbit = lazy(() =>
     default: m.IngredientOrbit,
   })),
 )
+
+// jsPDF también pesa lo suyo: se carga solo al pulsar "Descargar PDF", no
+// en el bundle inicial de la vista de detalle.
+async function downloadRecipePDF(data: {
+  title: string
+  ingredients: Ingredient[]
+  steps: string[]
+}) {
+  const { generateRecipePDF } = await import('@/utils/generateRecipePDF')
+  generateRecipePDF(data)
+}
 
 interface RecipeDetailViewProps {
   title: string
@@ -37,6 +48,17 @@ export function RecipeDetailView({
   steps,
   actions,
 }: RecipeDetailViewProps) {
+  const [generatingPdf, setGeneratingPdf] = useState(false)
+
+  async function handleDownloadPdf() {
+    setGeneratingPdf(true)
+    try {
+      await downloadRecipePDF({ title, ingredients, steps })
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
+
   return (
     <motion.article
       variants={pageTransition}
@@ -130,11 +152,17 @@ export function RecipeDetailView({
         )}
       </section>
 
-      {actions && (
-        <div className="mt-10 border-t border-espresso-500/10 pt-6">
-          {actions}
-        </div>
-      )}
+      <div className="mt-10 border-t border-espresso-500/10 pt-6">
+        <button
+          type="button"
+          onClick={handleDownloadPdf}
+          disabled={generatingPdf}
+          className="rounded-full border border-espresso-700/20 bg-cream-50 px-5 py-2 text-sm font-medium text-espresso-700 shadow-warm-sm transition-colors hover:bg-cream-200 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {generatingPdf ? 'Generando…' : 'Descargar PDF'}
+        </button>
+        {actions && <div className="mt-4">{actions}</div>}
+      </div>
     </motion.article>
   )
 }
