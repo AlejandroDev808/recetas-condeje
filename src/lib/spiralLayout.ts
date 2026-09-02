@@ -4,9 +4,14 @@ const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))
 // icono + sombra + tarjeta de texto) en unidades de mundo. Se usan como
 // radios de una elipse para detectar cuándo dos tarjetas quedan
 // demasiado cerca, ya sean vecinas en el mismo anillo o en anillos
-// distintos de la espiral.
-const CARD_HALF_WIDTH = 1.3
-const CARD_HALF_HEIGHT = 1.15
+// distintos de la espiral, y también para calcular a qué distancia debe
+// alejarse la cámara para que ninguna tarjeta quede cortada por el borde
+// del lienzo (ver fitCameraDistance).
+export const CARD_HALF_WIDTH = 1.3
+export const CARD_HALF_HEIGHT = 1.15
+// Aire extra (unidades de mundo) más allá del propio borde de la tarjeta,
+// para que no quede pegada al límite exacto del frustum de la cámara.
+const CAMERA_FIT_MARGIN = 0.15
 // Separación mínima en "distancia normalizada" (1 = elipses tocándose por
 // el borde); >1 deja un pequeño margen de aire entre tarjetas.
 const MIN_SEPARATION = 1.15
@@ -87,14 +92,41 @@ function relaxCollisions(positions: [number, number, number][]): void {
   }
 }
 
-/** Radio (en el plano x/y) que ocupa la espiral ya resuelta; se usa para
- * alejar la cámara lo justo y que quepan recetas con muchos ingredientes
- * sin apretarlas ni dejar de más espacio vacío en recetas pequeñas. */
-export function boundingRadius(positions: [number, number, number][]): number {
-  let max = 0
-  for (const [x, y] of positions) {
-    const r = Math.hypot(x, y)
-    if (r > max) max = r
+/**
+ * Distancia mínima de cámara (eje z) para la que ninguna tarjeta —
+ * contando su propio ancho/alto, no solo su punto central— queda fuera del
+ * frustum de una cámara en perspectiva con el `fov` (vertical, en grados) y
+ * `aspect` (ancho/alto del lienzo) dados.
+ *
+ * El ancho del contenedor cambia mucho entre un móvil estrecho (~380-420px)
+ * y una pantalla de escritorio: con el mismo fov vertical, un aspect más
+ * estrecho reduce el campo de visión horizontal en unidades de mundo, así
+ * que la espiral (más ancha que alta) que cabía de sobra en desktop puede
+ * salirse por los lados en móvil. Por eso este cálculo, a diferencia del
+ * antiguo boundingRadius (isótropo, ajeno al aspect), se recalcula con el
+ * aspect real del lienzo — ver CameraFit en IngredientScene.
+ */
+export function fitCameraDistance(
+  positions: [number, number, number][],
+  aspect: number,
+  fovDegrees: number,
+): number {
+  const halfFovRad = (fovDegrees / 2) * (Math.PI / 180)
+  const tanHalfFov = Math.tan(halfFovRad)
+
+  let required = 0
+  for (const [x, y, z] of positions) {
+    const halfWidth = Math.abs(x) + CARD_HALF_WIDTH + CAMERA_FIT_MARGIN
+    const halfHeight = Math.abs(y) + CARD_HALF_HEIGHT + CAMERA_FIT_MARGIN
+    // Distancia (a lo largo del eje de la cámara) a la que esta tarjeta
+    // concreta tocaría justo el borde horizontal o vertical del frustum,
+    // más su propia z: la cámara mira hacia -z, así que una tarjeta con z
+    // positivo (más cerca de la cámara) necesita más distancia extra para
+    // compensar que ya "adelanta" terreno.
+    const depthForWidth = halfWidth / (tanHalfFov * aspect)
+    const depthForHeight = halfHeight / tanHalfFov
+    const neededZ = Math.max(depthForWidth, depthForHeight) + z
+    if (neededZ > required) required = neededZ
   }
-  return max
+  return required
 }

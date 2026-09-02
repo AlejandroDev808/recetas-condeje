@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core'
+import { Directory, Filesystem } from '@capacitor/filesystem'
+import { Share } from '@capacitor/share'
 import { jsPDF } from 'jspdf'
 import type { Ingredient } from '@/types'
 
@@ -39,17 +42,56 @@ function formatIngredient(ingredient: Ingredient): string {
   return parts.length > 0 ? parts.join(' ') : 'Ingrediente sin especificar'
 }
 
+function isShareCancelled(error: unknown): boolean {
+  // El plugin @capacitor/share rechaza con este mensaje textual cuando el
+  // usuario cierra el diálogo nativo de compartir sin elegir destino — no es
+  // un fallo real.
+  const message = error instanceof Error ? error.message : String(error)
+  return /cancel/i.test(message)
+}
+
+/**
+ * Entrega el PDF ya generado en un WebView nativo (Android), donde no existe
+ * la API de descarga del navegador (`<a download>` no dispara nada). Se
+ * escribe como fichero binario en el directorio de caché de la app —
+ * temporal y sin permisos de almacenamiento adicionales — y se ofrece al
+ * usuario a través del diálogo nativo de compartir/guardar de Android, que
+ * puede servir el fichero gracias al FileProvider ya declarado en
+ * AndroidManifest.xml (cubre el directorio de caché en file_paths.xml).
+ */
+async function deliverPdfNative(doc: jsPDF, filename: string): Promise<void> {
+  const dataUri = doc.output('datauristring')
+  const base64 = dataUri.slice(dataUri.indexOf(',') + 1)
+
+  const { uri } = await Filesystem.writeFile({
+    path: filename,
+    data: base64,
+    directory: Directory.Cache,
+  })
+
+  try {
+    await Share.share({
+      title: filename,
+      dialogTitle: 'Guardar o compartir receta',
+      files: [uri],
+    })
+  } catch (error) {
+    if (isShareCancelled(error)) return
+    throw error
+  }
+}
+
 /**
  * Genera y descarga un PDF con el contenido de una receta (título,
  * ingredientes y pasos). Se usa tanto para recetas propias como para
  * vistas previas de TheMealDB, así que ingredients/steps pueden faltar o
  * venir vacíos sin que la generación falle.
  */
-export function generateRecipePDF({
+export async function generateRecipePDF({
   title,
   ingredients = [],
   steps = [],
-}: RecipePdfData): void {
+}: RecipePdfData): Promise<void> {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   let y = MARGIN
 
@@ -133,5 +175,10 @@ export function generateRecipePDF({
     y += 6
   }
 
-  doc.save(`${slugify(title)}.pdf`)
+  const filename = `${slugify(title)}.pdf`
+  if (Capacitor.isNativePlatform()) {
+    await deliverPdfNative(doc, filename)
+  } else {
+    doc.save(filename)
+  }
 }

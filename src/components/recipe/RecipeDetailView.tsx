@@ -19,7 +19,7 @@ async function downloadRecipePDF(data: {
   steps: string[]
 }) {
   const { generateRecipePDF } = await import('@/utils/generateRecipePDF')
-  generateRecipePDF(data)
+  await generateRecipePDF(data)
 }
 
 interface RecipeDetailViewProps {
@@ -49,11 +49,15 @@ export function RecipeDetailView({
   actions,
 }: RecipeDetailViewProps) {
   const [generatingPdf, setGeneratingPdf] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
 
   async function handleDownloadPdf() {
+    setPdfError(null)
     setGeneratingPdf(true)
     try {
       await downloadRecipePDF({ title, ingredients, steps })
+    } catch {
+      setPdfError('No se ha podido generar el PDF. Inténtalo de nuevo.')
     } finally {
       setGeneratingPdf(false)
     }
@@ -161,6 +165,9 @@ export function RecipeDetailView({
         >
           {generatingPdf ? 'Generando…' : 'Descargar PDF'}
         </button>
+        {pdfError && (
+          <p className="mt-2 text-sm text-terracotta-600">{pdfError}</p>
+        )}
         {actions && <div className="mt-4">{actions}</div>}
       </div>
     </motion.article>

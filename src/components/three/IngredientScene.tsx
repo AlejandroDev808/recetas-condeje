@@ -1,9 +1,10 @@
-import { useFrame } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { useScrollPositionRef } from '@/hooks/useScrollPosition'
 import { preloadIconTextures } from '@/lib/gameIconTexture'
 import { resolveIngredientIcon } from '@/lib/ingredientIcons'
+import { fitCameraDistance } from '@/lib/spiralLayout'
 import type { Ingredient } from '@/types'
 import { FloatingIngredient } from './FloatingIngredient'
 
@@ -12,6 +13,32 @@ interface IngredientSceneProps {
   /** Calculadas en IngredientOrbit (no aquí) para poder alejar la cámara
    * según lo que ocupen antes de montar el <Canvas>. */
   positions: [number, number, number][]
+}
+
+/**
+ * Aleja (o acerca) la cámara para que ninguna tarjeta quede cortada por el
+ * borde del lienzo, recalculando con el aspect ratio *real* del `<Canvas>`
+ * — a diferencia del fov/posición inicial fijados en IngredientOrbit antes
+ * de montar, aquí ya se conoce el tamaño real en píxeles del contenedor
+ * (distinto en un móvil estrecho que en desktop), así que se corrige en
+ * cuanto el lienzo mide o cambia de tamaño (p. ej. al rotar el dispositivo).
+ */
+function CameraFit({ positions }: { positions: [number, number, number][] }) {
+  const camera = useThree((state) => state.camera)
+  const width = useThree((state) => state.size.width)
+  const height = useThree((state) => state.size.height)
+
+  useLayoutEffect(() => {
+    if (!(camera instanceof THREE.PerspectiveCamera) || height === 0) return
+    const distance = fitCameraDistance(positions, width / height, camera.fov)
+    // Mutación intencional: react-three-fiber expone la cámara viva de
+    // three.js vía useThree precisamente para tocarla así, no como estado.
+    // oxlint-disable-next-line react/immutability
+    camera.position.z = distance
+    camera.updateProjectionMatrix()
+  }, [camera, width, height, positions])
+
+  return null
 }
 
 export function IngredientScene({ ingredients, positions }: IngredientSceneProps) {
@@ -44,6 +71,7 @@ export function IngredientScene({ ingredients, positions }: IngredientSceneProps
 
   return (
     <group ref={groupRef}>
+      <CameraFit positions={positions} />
       {ingredients.map((ingredient, i) => (
         <FloatingIngredient
           key={`${ingredient.name}-${i}`}

@@ -6,10 +6,12 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom'
+import { FloatingToolsButton } from '@/components/layout/FloatingToolsButton'
 import { Footer } from '@/components/layout/Footer'
-import { MusicPlayer } from '@/components/layout/MusicPlayer'
 import { NavBar } from '@/components/layout/NavBar'
 import { AuthProvider } from '@/context/AuthContext'
+import { KitchenTimerProvider } from '@/context/KitchenTimerContext'
+import { MusicPlayerProvider } from '@/context/MusicPlayerContext'
 import { useAndroidBackButton } from '@/hooks/useAndroidBackButton'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { LoginPage } from '@/pages/LoginPage'
@@ -49,7 +51,7 @@ function AppShell() {
         <AnimatedRoutes />
       </div>
       <Footer />
-      <MusicPlayer />
+      <FloatingToolsButton />
     </div>
   )
 }
@@ -58,7 +60,11 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppShell />
+        <MusicPlayerProvider>
+          <KitchenTimerProvider>
+            <AppShell />
+          </KitchenTimerProvider>
+        </MusicPlayerProvider>
       </AuthProvider>
     </BrowserRouter>
   )

@@ -45,6 +45,12 @@ const ICON_RULES: IconRule[] = [
   { keywords: ['eggplant', 'aubergine'], author: 'lorc', slug: 'aubergine', category: 'vegetable' },
   { keywords: ['bell pepper', 'sweet pepper', 'capsicum'], author: 'delapouite', slug: 'bell-pepper', category: 'vegetable' },
   { keywords: ['chilli', 'chili', 'cayenne', 'jalape'], author: 'delapouite', slug: 'chili-pepper', category: 'spice' },
+  // "vegetable oil/stock/broth" son líquidos, no la verdura genérica: sin
+  // esta regla, el keyword "vegetable" (más largo que "oil"/"stock"/
+  // "broth") ganaba y les ponía el icono de zanahoria de la línea de abajo,
+  // sin ninguna relación con lo que muestra la tarjeta.
+  { keywords: ['vegetable oil'], author: 'delapouite', slug: 'oil-can', category: 'liquid' },
+  { keywords: ['vegetable stock', 'vegetable broth', 'vegetable bouillon'], author: 'sbed', slug: 'water-drop', category: 'liquid' },
 
   // --- verduras y hortalizas ---
   { keywords: ['tomato'], author: 'delapouite', slug: 'tomato', category: 'vegetable' },
@@ -59,7 +65,9 @@ const ICON_RULES: IconRule[] = [
   { keywords: ['mushroom'], author: 'delapouite', slug: 'mushrooms', category: 'vegetable' },
   { keywords: ['pumpkin', 'squash'], author: 'delapouite', slug: 'pumpkin', category: 'vegetable' },
   { keywords: ['pea'], author: 'delapouite', slug: 'peas', category: 'vegetable' },
-  { keywords: ['pepper'], author: 'lorc', slug: 'hot-spices', category: 'spice' },
+  // Pimienta (negra/blanca) molida: no es picante como un chile (regla de
+  // arriba), así que usa el icono neutro de especia en polvo.
+  { keywords: ['pepper'], author: 'lorc', slug: 'powder', category: 'spice' },
   { keywords: ['avocado'], author: 'delapouite', slug: 'avocado', category: 'fruit' },
   { keywords: ['olive'], author: 'delapouite', slug: 'olive', category: 'vegetable' },
   { keywords: ['corn'], author: 'delapouite', slug: 'corn', category: 'vegetable' },
@@ -122,8 +130,12 @@ const ICON_RULES: IconRule[] = [
   { keywords: ['seed'], author: 'delapouite', slug: 'plant-seed', category: 'grain' },
 
   // --- especias y hierbas ---
-  { keywords: ['cinnamon', 'nutmeg', 'cumin', 'paprika', 'turmeric', 'cardamom', 'clove', 'curry powder', 'vanilla', 'mixed spice', 'five spice', 'spice'], author: 'lorc', slug: 'hot-spices', category: 'spice' },
-  { keywords: ['ginger'], author: 'lorc', slug: 'hot-spices', category: 'spice' },
+  // Estas especias molidas no son picantes (a diferencia del chile, que
+  // usa su propio icono en la regla de arriba), así que llevan un icono
+  // neutro de polvo/gránulos en vez del icono de guindilla que compartían
+  // antes sin ningún sentido.
+  { keywords: ['cinnamon', 'nutmeg', 'cumin', 'paprika', 'turmeric', 'cardamom', 'clove', 'curry powder', 'mixed spice', 'five spice', 'ginger', 'spice'], author: 'lorc', slug: 'powder', category: 'spice' },
+  { keywords: ['vanilla'], author: 'lorc', slug: 'vanilla-flower', category: 'spice' },
   { keywords: ['salt'], author: 'lorc', slug: 'salt-shaker', category: 'spice' },
   { keywords: ['sugar'], author: 'delapouite', slug: 'sugar-cane', category: 'spice' },
   { keywords: ['thyme', 'rosemary', 'oregano', 'parsley', 'coriander', 'cilantro', 'basil', 'mint', 'dill', 'bay leaf', 'herbs'], author: 'delapouite', slug: 'herbs-bundle', category: 'herb' },
