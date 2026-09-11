@@ -4,8 +4,11 @@ import { Capacitor } from '@capacitor/core'
 import {
   type User,
   createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
   GoogleAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   signInWithCredential,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -21,6 +24,7 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { auth, googleProvider } from '@/services/firebase'
+import { deleteAllUserRecipes } from '@/services/recipes'
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'auth/account-exists-with-different-credential':
@@ -211,6 +215,16 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: (returnTo?: string) => Promise<void>
   signOut: () => Promise<void>
+  /**
+   * Borra las recetas del usuario y su cuenta de Firebase Auth. Firebase
+   * exige un login "reciente" para operaciones sensibles como esta
+   * (auth/requires-recent-login si no lo es), así que primero se
+   * reautentica siempre: con `password` vía EmailAuthProvider para cuentas
+   * de email/contraseña, o repitiendo el login de Google en las demás. Se
+   * reautentica antes de borrar nada para no dejar recetas borradas con la
+   * cuenta todavía viva si el usuario cancela la reautenticación.
+   */
+  deleteAccount: (password?: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -274,6 +288,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     signOut: async () => {
       await firebaseSignOut(auth)
+    },
+    deleteAccount: async (password) => {
+      const currentUser = auth.currentUser
+      if (!currentUser) throw new Error('No hay sesión activa.')
+
+      const providerId = currentUser.providerData[0]?.providerId
+      if (providerId === 'password') {
+        if (!currentUser.email || !password) {
+          throw new Error('Introduce tu contraseña para confirmar.')
+        }
+        await reauthenticateWithCredential(
+          currentUser,
+          EmailAuthProvider.credential(currentUser.email, password),
+        )
+      } else if (Capacitor.isNativePlatform()) {
+        await signInWithGoogleNative((cleanup) => {
+          const cleanups = pendingNativeCleanupsRef.current
+          cleanups.add(cleanup)
+          return () => cleanups.delete(cleanup)
+        })
+      } else {
+        await signInWithPopup(auth, googleProvider)
+      }
+
+      await deleteAllUserRecipes(currentUser.uid)
+      await deleteUser(currentUser)
     },
   }
 

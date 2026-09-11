@@ -4,11 +4,13 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore'
 import type { Recipe, RecipeDraft } from '@/types'
 import { db } from './firebase'
@@ -103,6 +105,20 @@ export async function updateRecipe(
 
 export async function deleteRecipe(id: string): Promise<void> {
   await deleteDoc(doc(db, 'recipes', id))
+}
+
+/**
+ * Borra todas las recetas del usuario. Se usa al eliminar la cuenta: sin
+ * esto, las recetas quedarían huérfanas en Firestore (ownerId apuntando a
+ * un uid que ya no existe en Auth).
+ */
+export async function deleteAllUserRecipes(uid: string): Promise<void> {
+  const snapshot = await getDocs(
+    query(recipesCollection, where('ownerId', '==', uid)),
+  )
+  const batch = writeBatch(db)
+  for (const d of snapshot.docs) batch.delete(d.ref)
+  await batch.commit()
 }
 
 /** Copia una receta encontrada en TheMealDB al cuaderno del usuario. */

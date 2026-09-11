@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { DeleteAccountSection } from '@/components/auth/DeleteAccountSection'
 import { SignInPrompt } from '@/components/auth/SignInPrompt'
 import { RecipeGrid } from '@/components/recipe/RecipeGrid'
 import { useAuth } from '@/context/AuthContext'
@@ -90,6 +91,8 @@ export function NotebookPage() {
           emptyMessage="No hay recetas en este momento del día todavía."
         />
       </div>
+
+      <DeleteAccountSection />
     </motion.section>
   )
 }

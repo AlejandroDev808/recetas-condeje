@@ -9,6 +9,24 @@ export function Footer() {
       >
         Iconos de ingredientes por game-icons.net (CC BY 3.0)
       </a>
+      <span className="mx-2">·</span>
+      <a
+        href="/privacidad.html"
+        target="_blank"
+        rel="noreferrer noopener"
+        className="underline decoration-espresso-500/30 underline-offset-2 transition-colors hover:text-espresso-600"
+      >
+        Política de privacidad
+      </a>
+      <span className="mx-2">·</span>
+      <a
+        href="/eliminar-cuenta.html"
+        target="_blank"
+        rel="noreferrer noopener"
+        className="underline decoration-espresso-500/30 underline-offset-2 transition-colors hover:text-espresso-600"
+      >
+        Eliminar cuenta
+      </a>
     </footer>
   )
 }
