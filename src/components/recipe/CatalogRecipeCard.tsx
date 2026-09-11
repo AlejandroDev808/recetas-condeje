@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { staggerItem } from '@/lib/animations'
-import { areaLabelEs } from '@/lib/areaLabels'
+import { areaLabelWithFlag } from '@/lib/areaLabels'
 import { categoryLabelEs } from '@/lib/categoryLabels'
 import { useSaveStandardRecipe } from '@/hooks/useSaveStandardRecipe'
 import type { MealDbMealRaw } from '@/types'
@@ -22,7 +22,7 @@ export function CatalogRecipeCard({ meal }: CatalogRecipeCardProps) {
           <Link to={`/catalogo/${meal.idMeal}`} className="block">
             <div className="flex aspect-4/3 items-center justify-center bg-sage-100">
               <span className="px-4 text-center text-sm font-medium text-sage-700/70">
-                {meal.strArea ? areaLabelEs(meal.strArea) : ''}
+                {meal.strArea ? areaLabelWithFlag(meal.strArea) : ''}
               </span>
             </div>
           </Link>

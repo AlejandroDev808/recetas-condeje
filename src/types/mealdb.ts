@@ -41,3 +41,5 @@ export interface MealDbCategoriesResponse {
 }
 
 export type MealDbSearchMode = 'name' | 'ingredient' | 'category' | 'area'
+
+export type MealDbResult = MealDbMealRaw | MealDbMealSummary

@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import type { MealDbResult } from '@/hooks/useMealDbSearch'
 import { getMealById, mapMealDbToRecipeDraft } from '@/services/mealdb'
 import { saveMealDbRecipe } from '@/services/recipes'
-import type { MealDbMealRaw } from '@/types'
+import type { MealDbMealRaw, MealDbResult } from '@/types'
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 

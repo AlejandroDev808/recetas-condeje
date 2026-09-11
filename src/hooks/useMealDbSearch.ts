@@ -6,13 +6,7 @@ import {
   searchMealsByName,
 } from '@/services/mealdb'
 import { translateToEnglish } from '@/services/translate'
-import type {
-  MealDbMealRaw,
-  MealDbMealSummary,
-  MealDbSearchMode,
-} from '@/types'
-
-export type MealDbResult = MealDbMealRaw | MealDbMealSummary
+import type { MealDbResult, MealDbSearchMode } from '@/types'
 
 export function useMealDbSearch(
   initialMode: MealDbSearchMode = 'name',

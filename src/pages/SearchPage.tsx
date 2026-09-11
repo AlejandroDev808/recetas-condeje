@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion'
-import { type FormEvent, useEffect, useRef, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { CatalogRecipeCard } from '@/components/recipe/CatalogRecipeCard'
 import { MealResultCard } from '@/components/recipe/MealResultCard'
-import { useMealDbSearch } from '@/hooks/useMealDbSearch'
+import { useRecipeSearch } from '@/hooks/useRecipeSearch'
 import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 import { pageTransition, staggerContainer } from '@/lib/animations'
-import { areaLabelEs, SEARCH_AREAS } from '@/lib/areaLabels'
+import { areaLabelWithFlag, mergeAreas } from '@/lib/areaLabels'
 import { categoryLabelEs } from '@/lib/categoryLabels'
 import { getCategories } from '@/services/mealdb'
 import type { MealDbCategory, MealDbSearchMode } from '@/types'
@@ -48,7 +49,8 @@ export function SearchPage() {
     error,
     translatedQuery,
     search,
-  } = useMealDbSearch(initialMode, initialQuery)
+    catalog,
+  } = useRecipeSearch(initialMode, initialQuery)
   const [categories, setCategories] = useState<MealDbCategory[]>([])
   const isFirstModeChange = useRef(true)
 
@@ -60,6 +62,14 @@ export function SearchPage() {
       .catch(() => setCategories([]))
   }, [])
 
+  // El catálogo propio aporta cocinas que TheMealDB no cubre (marroquí,
+  // coreana, cubana...); se combinan para que el desplegable de país
+  // busque en ambas fuentes a la vez.
+  const areas = useMemo(
+    () => mergeAreas([...new Set(catalog.map((r) => r.strArea).filter(Boolean))] as string[]),
+    [catalog],
+  )
+
   // Restaura la búsqueda reflejada en la URL nada más montar (solo una vez):
   // así volver con "atrás" desde el detalle de una receta recupera el mismo
   // término y los mismos resultados en vez de un buscador vacío.
@@ -68,8 +78,8 @@ export function SearchPage() {
   }, [initialMode, initialQuery, search])
 
   // Al cambiar de modo se limpia la query. Aparte, y solo si seguimos en
-  // modo categoría con la query aún vacía, se rellena con la primera
-  // categoría en cuanto llegan de la API — en efectos separados para que
+  // modo categoría/país con la query aún vacía, se rellena con la primera
+  // opción en cuanto llegan de la API — en efectos separados para que
   // cargar categorías no borre lo que el usuario esté escribiendo en modo
   // Nombre/Ingrediente. Se ignora el primer disparo (al montar) para no
   // borrar la query restaurada desde la URL.
@@ -85,10 +95,10 @@ export function SearchPage() {
     if (mode === 'category' && !query && categories.length > 0) {
       setQuery(categories[0].strCategory)
     }
-    if (mode === 'area' && !query) {
-      setQuery(SEARCH_AREAS[0])
+    if (mode === 'area' && !query && areas.length > 0) {
+      setQuery(areas[0])
     }
-  }, [mode, categories, query, setQuery])
+  }, [mode, categories, areas, query, setQuery])
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -113,9 +123,9 @@ export function SearchPage() {
         Buscar recetas
       </h1>
       <p className="mt-2 text-espresso-500/80">
-        Explora TheMealDB por nombre, ingrediente, categoría o país (puedes
-        escribir en español, lo traducimos antes de buscar) y guarda lo que
-        te guste en tu cuaderno.
+        Explora tu catálogo propio y TheMealDB por nombre, ingrediente,
+        categoría o país (puedes escribir en español, lo traducimos antes de
+        buscar) y guarda lo que te guste en tu cuaderno.
       </p>
 
       <form
@@ -157,9 +167,9 @@ export function SearchPage() {
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 rounded-full border border-espresso-500/15 bg-cream-50 px-5 py-2 text-espresso-700 focus:border-terracotta-400 focus:outline-none"
           >
-            {SEARCH_AREAS.map((a) => (
+            {areas.map((a) => (
               <option key={a} value={a}>
-                {areaLabelEs(a)}
+                {areaLabelWithFlag(a)}
               </option>
             ))}
           </select>
@@ -199,9 +209,19 @@ export function SearchPage() {
           animate="show"
           className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {results.map((meal) => (
-            <MealResultCard key={meal.idMeal} meal={meal} />
-          ))}
+          {results.map((result) =>
+            result.origin === 'catalog' ? (
+              <CatalogRecipeCard
+                key={`catalog-${result.meal.idMeal}`}
+                meal={result.meal}
+              />
+            ) : (
+              <MealResultCard
+                key={`mealdb-${result.meal.idMeal}`}
+                meal={result.meal}
+              />
+            ),
+          )}
         </motion.div>
       )}
 

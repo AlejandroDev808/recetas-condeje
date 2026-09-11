@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { staggerItem } from '@/lib/animations'
 import { useSaveMealDbRecipe } from '@/hooks/useSaveMealDbRecipe'
-import type { MealDbResult } from '@/hooks/useMealDbSearch'
+import type { MealDbResult } from '@/types'
 import { TiltCard } from './TiltCard'
 
 interface MealResultCardProps {
