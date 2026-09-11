@@ -25,4 +25,4 @@ serviceAccountKey.json
 *.njsproj
 *.sln
 *.sw?
-".claude/" 
+.claude/
