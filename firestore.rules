@@ -9,5 +9,12 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.ownerId;
     }
+
+    // Catálogo curado y de solo lectura (ver scripts/seedRecipes.ts); se
+    // escribe únicamente desde el script con el SDK de admin, que no pasa
+    // por estas reglas.
+    match /standardRecipes/{recipeId} {
+      allow read: if true;
+    }
   }
 }

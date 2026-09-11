@@ -68,7 +68,7 @@ export async function getCategories(): Promise<MealDbCategory[]> {
  * (strIngredient1/strMeasure1 ... strIngredient20/strMeasure20) en vez de
  * un array, así que hay que recomponerlos manualmente.
  */
-function parseIngredients(meal: MealDbMealRaw): RecipeDraft['ingredients'] {
+export function parseIngredients(meal: MealDbMealRaw): RecipeDraft['ingredients'] {
   const ingredients: RecipeDraft['ingredients'] = []
 
   for (let i = 1; i <= 20; i += 1) {

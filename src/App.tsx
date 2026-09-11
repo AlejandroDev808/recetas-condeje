@@ -14,6 +14,8 @@ import { KitchenTimerProvider } from '@/context/KitchenTimerContext'
 import { MusicPlayerProvider } from '@/context/MusicPlayerContext'
 import { useAndroidBackButton } from '@/hooks/useAndroidBackButton'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
+import { CatalogPage } from '@/pages/CatalogPage'
+import { CatalogRecipePage } from '@/pages/CatalogRecipePage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MealPreviewPage } from '@/pages/MealPreviewPage'
 import { NotebookPage } from '@/pages/NotebookPage'
@@ -30,6 +32,8 @@ function AnimatedRoutes() {
         <Route path="/" element={<Navigate to="/buscar" replace />} />
         <Route path="/buscar" element={<SearchPage />} />
         <Route path="/buscar/:id" element={<MealPreviewPage />} />
+        <Route path="/catalogo" element={<CatalogPage />} />
+        <Route path="/catalogo/:id" element={<CatalogRecipePage />} />
         <Route path="/mi-cuaderno" element={<NotebookPage />} />
         <Route path="/mi-cuaderno/nueva" element={<RecipeFormPage />} />
         <Route path="/mi-cuaderno/:id/editar" element={<RecipeFormPage />} />
