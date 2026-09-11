@@ -5,6 +5,7 @@ import { MealResultCard } from '@/components/recipe/MealResultCard'
 import { useMealDbSearch } from '@/hooks/useMealDbSearch'
 import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 import { pageTransition, staggerContainer } from '@/lib/animations'
+import { areaLabelEs, SEARCH_AREAS } from '@/lib/areaLabels'
 import { categoryLabelEs } from '@/lib/categoryLabels'
 import { getCategories } from '@/services/mealdb'
 import type { MealDbCategory, MealDbSearchMode } from '@/types'
@@ -13,10 +14,16 @@ const MODE_LABELS: Record<MealDbSearchMode, string> = {
   name: 'Nombre',
   ingredient: 'Ingrediente',
   category: 'Categoría',
+  area: 'País',
 }
 
 function isSearchMode(value: string | null): value is MealDbSearchMode {
-  return value === 'name' || value === 'ingredient' || value === 'category'
+  return (
+    value === 'name' ||
+    value === 'ingredient' ||
+    value === 'category' ||
+    value === 'area'
+  )
 }
 
 export function SearchPage() {
@@ -78,6 +85,9 @@ export function SearchPage() {
     if (mode === 'category' && !query && categories.length > 0) {
       setQuery(categories[0].strCategory)
     }
+    if (mode === 'area' && !query) {
+      setQuery(SEARCH_AREAS[0])
+    }
   }, [mode, categories, query, setQuery])
 
   function handleSubmit(event: FormEvent) {
@@ -103,7 +113,7 @@ export function SearchPage() {
         Buscar recetas
       </h1>
       <p className="mt-2 text-espresso-500/80">
-        Explora TheMealDB por nombre, ingrediente o categoría (puedes
+        Explora TheMealDB por nombre, ingrediente, categoría o país (puedes
         escribir en español, lo traducimos antes de buscar) y guarda lo que
         te guste en tu cuaderno.
       </p>
@@ -138,6 +148,18 @@ export function SearchPage() {
             {categories.map((c) => (
               <option key={c.idCategory} value={c.strCategory}>
                 {categoryLabelEs(c.strCategory)}
+              </option>
+            ))}
+          </select>
+        ) : mode === 'area' ? (
+          <select
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1 rounded-full border border-espresso-500/15 bg-cream-50 px-5 py-2 text-espresso-700 focus:border-terracotta-400 focus:outline-none"
+          >
+            {SEARCH_AREAS.map((a) => (
+              <option key={a} value={a}>
+                {areaLabelEs(a)}
               </option>
             ))}
           </select>

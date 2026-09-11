@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import {
+  searchMealsByArea,
   searchMealsByCategory,
   searchMealsByIngredient,
   searchMealsByName,
@@ -42,10 +43,10 @@ export function useMealDbSearch(
       setLoading(true)
       setError(null)
       try {
-        // El selector de categoría ya entrega el nombre en inglés tal como
-        // lo espera la API, así que no hace falta traducirlo.
+        // Los selectores de categoría y país ya entregan el nombre en inglés
+        // tal como lo espera la API, así que no hace falta traducirlos.
         const effectiveQuery =
-          searchMode === 'category'
+          searchMode === 'category' || searchMode === 'area'
             ? trimmed
             : await translateToEnglish(trimmed)
 
@@ -60,7 +61,9 @@ export function useMealDbSearch(
             ? await searchMealsByName(effectiveQuery)
             : searchMode === 'ingredient'
               ? await searchMealsByIngredient(effectiveQuery)
-              : await searchMealsByCategory(effectiveQuery)
+              : searchMode === 'category'
+                ? await searchMealsByCategory(effectiveQuery)
+                : await searchMealsByArea(effectiveQuery)
         setResults(data)
       } catch {
         setError('No se ha podido conectar con TheMealDB. Inténtalo de nuevo.')

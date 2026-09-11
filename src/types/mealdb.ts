@@ -40,4 +40,4 @@ export interface MealDbCategoriesResponse {
   categories: MealDbCategory[]
 }
 
-export type MealDbSearchMode = 'name' | 'ingredient' | 'category'
+export type MealDbSearchMode = 'name' | 'ingredient' | 'category' | 'area'

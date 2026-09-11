@@ -47,6 +47,15 @@ export async function searchMealsByCategory(
   return data.meals ?? []
 }
 
+export async function searchMealsByArea(
+  area: string,
+): Promise<MealDbMealSummary[]> {
+  const data = await fetchJson<MealDbFilterResponse>(
+    `/filter.php?a=${encodeURIComponent(area)}`,
+  )
+  return data.meals ?? []
+}
+
 /**
  * filter.php solo trae idMeal/strMeal/strMealThumb, así que para mostrar
  * o guardar una receta completa hay que pedir el detalle por id.
