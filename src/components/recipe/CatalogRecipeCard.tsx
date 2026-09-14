@@ -20,17 +20,35 @@ export function CatalogRecipeCard({ meal }: CatalogRecipeCardProps) {
     <motion.div variants={staggerItem}>
       <TiltCard className="[transform-style:preserve-3d]">
         <div className="overflow-hidden rounded-2xl bg-cream-50 shadow-warm-md ring-1 ring-espresso-500/5">
-          <Link to={`/catalogo/${meal.idMeal}`} className="block">
-            <div className="flex aspect-4/3 items-center justify-center gap-1.5 bg-sage-100 px-4">
-              {meal.strArea && (
-                <>
-                  <FlagIcon area={meal.strArea} className="h-5 w-6.5" />
-                  <span className="text-center text-sm font-medium text-sage-700/70">
-                    {areaLabelEs(meal.strArea)}
-                  </span>
-                </>
-              )}
-            </div>
+          <Link to={`/catalogo/${meal.idMeal}`} className="relative block">
+            {meal.strMealThumb ? (
+              <div className="aspect-4/3 overflow-hidden bg-sage-100">
+                <img
+                  src={meal.strMealThumb}
+                  alt={meal.strMeal}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+            ) : (
+              <div className="flex aspect-4/3 items-center justify-center gap-1.5 bg-sage-100 px-4">
+                {meal.strArea && (
+                  <>
+                    <FlagIcon area={meal.strArea} className="h-5 w-6.5" />
+                    <span className="text-center text-sm font-medium text-sage-700/70">
+                      {areaLabelEs(meal.strArea)}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
+
+            {meal.strMealThumb && meal.strArea && (
+              <FlagIcon
+                area={meal.strArea}
+                className="absolute top-2 right-2 h-5 w-6.5 shadow-warm-md"
+              />
+            )}
           </Link>
 
           <div className="space-y-3 p-4">

@@ -11,6 +11,15 @@ export function Footer() {
       </a>
       <span className="mx-2">·</span>
       <a
+        href="https://www.wikipedia.org"
+        target="_blank"
+        rel="noreferrer noopener"
+        className="underline decoration-espresso-500/30 underline-offset-2 transition-colors hover:text-espresso-600"
+      >
+        Fotos de recetas del catálogo cortesía de Wikipedia
+      </a>
+      <span className="mx-2">·</span>
+      <a
         href="/privacidad.html"
         target="_blank"
         rel="noreferrer noopener"
