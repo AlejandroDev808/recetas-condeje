@@ -11,9 +11,14 @@ import type { RecipeDraft } from '@/types'
 // "1" es la test key pública y gratuita de TheMealDB, sin necesidad de
 // registro para los endpoints de búsqueda/filtro/lookup que usamos aquí.
 const BASE_URL = 'https://www.themealdb.com/api/json/v1/1'
+// Sin timeout, una petición bloqueada o muy lenta deja la búsqueda colgada
+// en "Buscando…" indefinidamente.
+const FETCH_TIMEOUT_MS = 8000
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`)
+  const res = await fetch(`${BASE_URL}${path}`, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  })
   if (!res.ok) {
     throw new Error(`TheMealDB respondió ${res.status} para ${path}`)
   }

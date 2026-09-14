@@ -1,6 +1,12 @@
 const GOOGLE_TRANSLATE_URL = 'https://translate.googleapis.com/translate_a/single'
 const MYMEMORY_URL = 'https://api.mymemory.translated.net/get'
 
+// Sin timeout, un fetch bloqueado o muy lento (p. ej. el endpoint de Google,
+// que en muchos navegadores falla por CORS pero puede tardar en rechazar)
+// deja la búsqueda colgada en "Buscando…" en vez de caer al siguiente
+// respaldo de la cadena.
+const TRANSLATE_TIMEOUT_MS = 4000
+
 interface MyMemoryResponse {
   responseData: { translatedText: string }
   responseStatus: number | string
@@ -24,7 +30,9 @@ async function translateViaGoogle(
     dt: 't',
     q: text,
   })
-  const res = await fetch(`${GOOGLE_TRANSLATE_URL}?${params.toString()}`)
+  const res = await fetch(`${GOOGLE_TRANSLATE_URL}?${params.toString()}`, {
+    signal: AbortSignal.timeout(TRANSLATE_TIMEOUT_MS),
+  })
   if (!res.ok) throw new Error(`Google Translate respondió ${res.status}`)
 
   const data = (await res.json()) as unknown
@@ -52,7 +60,9 @@ async function translateViaMyMemory(
   to: string,
 ): Promise<string> {
   const params = new URLSearchParams({ q: text, langpair: `${from}|${to}` })
-  const res = await fetch(`${MYMEMORY_URL}?${params.toString()}`)
+  const res = await fetch(`${MYMEMORY_URL}?${params.toString()}`, {
+    signal: AbortSignal.timeout(TRANSLATE_TIMEOUT_MS),
+  })
   if (!res.ok) throw new Error(`MyMemory respondió ${res.status}`)
 
   const data = (await res.json()) as MyMemoryResponse

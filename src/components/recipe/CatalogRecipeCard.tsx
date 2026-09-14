@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { staggerItem } from '@/lib/animations'
-import { areaLabelWithFlag } from '@/lib/areaLabels'
+import { areaLabelEs } from '@/lib/areaLabels'
 import { categoryLabelEs } from '@/lib/categoryLabels'
 import { useSaveStandardRecipe } from '@/hooks/useSaveStandardRecipe'
 import type { MealDbMealRaw } from '@/types'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 import { TiltCard } from './TiltCard'
 
 interface CatalogRecipeCardProps {
@@ -20,10 +21,15 @@ export function CatalogRecipeCard({ meal }: CatalogRecipeCardProps) {
       <TiltCard className="[transform-style:preserve-3d]">
         <div className="overflow-hidden rounded-2xl bg-cream-50 shadow-warm-md ring-1 ring-espresso-500/5">
           <Link to={`/catalogo/${meal.idMeal}`} className="block">
-            <div className="flex aspect-4/3 items-center justify-center bg-sage-100">
-              <span className="px-4 text-center text-sm font-medium text-sage-700/70">
-                {meal.strArea ? areaLabelWithFlag(meal.strArea) : ''}
-              </span>
+            <div className="flex aspect-4/3 items-center justify-center gap-1.5 bg-sage-100 px-4">
+              {meal.strArea && (
+                <>
+                  <FlagIcon area={meal.strArea} className="h-5 w-6.5" />
+                  <span className="text-center text-sm font-medium text-sage-700/70">
+                    {areaLabelEs(meal.strArea)}
+                  </span>
+                </>
+              )}
             </div>
           </Link>
 

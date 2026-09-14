@@ -32,6 +32,11 @@ export function useRecipeSearch(
   initialQuery = '',
 ) {
   const mealDb = useMealDbSearch(initialMode, initialQuery)
+  // useMealDbSearch devuelve un objeto nuevo en cada render; usar `mealDb`
+  // entero como dependencia haría que `search` (más abajo) cambiara de
+  // identidad en cada render. `mealDb.search` en sí sí es estable (viene de
+  // un useCallback con deps `[]`), así que se referencia por separado.
+  const { search: mealDbSearch } = mealDb
   const [catalog, setCatalog] = useState<MealDbMealRaw[]>([])
   const [catalogMatches, setCatalogMatches] = useState<MealDbMealRaw[]>([])
 
@@ -58,9 +63,9 @@ export function useRecipeSearch(
                 : catalog.filter((m) => m.strArea === trimmed),
       )
 
-      await mealDb.search(searchMode, rawQuery)
+      await mealDbSearch(searchMode, rawQuery)
     },
-    [catalog, mealDb],
+    [catalog, mealDbSearch],
   )
 
   const results = useMemo<RecipeSearchResult[]>(

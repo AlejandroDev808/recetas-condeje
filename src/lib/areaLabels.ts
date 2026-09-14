@@ -40,54 +40,8 @@ export const AREA_LABELS_ES: Record<string, string> = {
   Ukrainian: 'Ucraniana',
 }
 
-/** Bandera del país de origen de la cocina, para mostrar junto a la etiqueta. */
-export const AREA_FLAGS: Record<string, string> = {
-  Italian: '🇮🇹',
-  Japanese: '🇯🇵',
-  Spanish: '🇪🇸',
-  French: '🇫🇷',
-  Mexican: '🇲🇽',
-  Chinese: '🇨🇳',
-  Indian: '🇮🇳',
-  Thai: '🇹🇭',
-  Greek: '🇬🇷',
-  Peruvian: '🇵🇪',
-  Moroccan: '🇲🇦',
-  Korean: '🇰🇷',
-  Vietnamese: '🇻🇳',
-  Turkish: '🇹🇷',
-  Lebanese: '🇱🇧',
-  Brazilian: '🇧🇷',
-  Argentinian: '🇦🇷',
-  German: '🇩🇪',
-  Portuguese: '🇵🇹',
-  Cuban: '🇨🇺',
-  British: '🇬🇧',
-  Canadian: '🇨🇦',
-  Croatian: '🇭🇷',
-  Egyptian: '🇪🇬',
-  Filipino: '🇵🇭',
-  Irish: '🇮🇪',
-  Jamaican: '🇯🇲',
-  Kenyan: '🇰🇪',
-  Malaysian: '🇲🇾',
-  Polish: '🇵🇱',
-  Russian: '🇷🇺',
-  Tunisian: '🇹🇳',
-  Ukrainian: '🇺🇦',
-}
-
 export function areaLabelEs(englishName: string): string {
   return AREA_LABELS_ES[englishName] ?? englishName
-}
-
-export function areaFlag(englishName: string): string {
-  return AREA_FLAGS[englishName] ?? '🌍'
-}
-
-/** Etiqueta lista para mostrar: bandera + nombre en español. */
-export function areaLabelWithFlag(englishName: string): string {
-  return `${areaFlag(englishName)} ${areaLabelEs(englishName)}`
 }
 
 /**

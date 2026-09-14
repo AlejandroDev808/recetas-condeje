@@ -3,10 +3,11 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CatalogRecipeCard } from '@/components/recipe/CatalogRecipeCard'
 import { MealResultCard } from '@/components/recipe/MealResultCard'
+import { CountrySelect } from '@/components/ui/CountrySelect'
 import { useRecipeSearch } from '@/hooks/useRecipeSearch'
 import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 import { pageTransition, staggerContainer } from '@/lib/animations'
-import { areaLabelWithFlag, mergeAreas } from '@/lib/areaLabels'
+import { mergeAreas } from '@/lib/areaLabels'
 import { categoryLabelEs } from '@/lib/categoryLabels'
 import { getCategories } from '@/services/mealdb'
 import type { MealDbCategory, MealDbSearchMode } from '@/types'
@@ -162,17 +163,7 @@ export function SearchPage() {
             ))}
           </select>
         ) : mode === 'area' ? (
-          <select
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 rounded-full border border-espresso-500/15 bg-cream-50 px-5 py-2 text-espresso-700 focus:border-terracotta-400 focus:outline-none"
-          >
-            {areas.map((a) => (
-              <option key={a} value={a}>
-                {areaLabelWithFlag(a)}
-              </option>
-            ))}
-          </select>
+          <CountrySelect value={query} onChange={setQuery} options={areas} />
         ) : (
           <input
             value={query}
