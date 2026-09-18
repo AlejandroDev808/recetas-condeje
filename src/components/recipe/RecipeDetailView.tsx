@@ -1,15 +1,8 @@
 import { motion } from 'framer-motion'
-import { Suspense, lazy, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { IngredientCards } from '@/components/IngredientCards'
 import { pageTransition } from '@/lib/animations'
 import { MEAL_TIME_LABELS, type Ingredient, type MealTime } from '@/types'
-
-// three.js + fiber/drei pesan bastante: se cargan solo cuando se abre una
-// receta (guardada o en vista previa), no en el bundle inicial.
-const IngredientOrbit = lazy(() =>
-  import('@/components/three/IngredientOrbit').then((m) => ({
-    default: m.IngredientOrbit,
-  })),
-)
 
 // jsPDF también pesa lo suyo: se carga solo al pulsar "Descargar PDF", no
 // en el bundle inicial de la vista de detalle.
@@ -112,21 +105,7 @@ export function RecipeDetailView({
           Ingredientes
         </h2>
         {ingredients.length > 0 ? (
-          <>
-            <p className="mt-1 text-sm text-espresso-500/70">
-              Mueve el ratón sobre las tarjetas o haz scroll: flotan y giran
-              suavemente.
-            </p>
-            <Suspense
-              fallback={
-                <div className="flex h-[420px] items-center justify-center text-espresso-500/50 sm:h-[520px]">
-                  Cargando ingredientes…
-                </div>
-              }
-            >
-              <IngredientOrbit ingredients={ingredients} />
-            </Suspense>
-          </>
+          <IngredientCards ingredients={ingredients} />
         ) : (
           <p className="mt-2 text-espresso-500/60">
             Esta receta todavía no tiene ingredientes.

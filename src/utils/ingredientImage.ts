@@ -32,19 +32,24 @@ function slugFor(name: string): string {
 }
 
 /**
- * Placeholder propio en SVG (sin peticiones de red): un círculo de color de
- * la paleta de la app con la inicial del ingrediente, para cuando no hay ni
- * foto propia ni icono de TheMealDB.
+ * Placeholder propio en SVG (sin peticiones de red): un cuenco humeante
+ * genérico sobre un color de la paleta de la app, para cuando no hay ni
+ * foto propia ni icono de TheMealDB. A propósito NO es un círculo con la
+ * inicial: con tantos ingredientes distintos, un círculo-inicial se lee
+ * como un avatar de usuario, no como comida.
  */
 function placeholderImage(name: string): string {
-  const initial = (name.trim().charAt(0) || '?').toLocaleUpperCase('es-ES')
   const { bg, fg } = PLACEHOLDER_PALETTE[hashString(name) % PLACEHOLDER_PALETTE.length]
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
-    `<circle cx="32" cy="32" r="32" fill="${bg}"/>` +
-    `<text x="32" y="32" text-anchor="middle" dominant-baseline="central" ` +
-    `font-family="system-ui, sans-serif" font-size="28" font-weight="600" fill="${fg}">${initial}</text>` +
+    `<rect width="64" height="64" rx="16" fill="${bg}"/>` +
+    // Cuenco: medio círculo + borde superior.
+    `<path d="M16 33a16 16 0 0 0 32 0z" fill="none" stroke="${fg}" stroke-width="3" stroke-linecap="round"/>` +
+    `<line x1="14" y1="33" x2="50" y2="33" stroke="${fg}" stroke-width="3" stroke-linecap="round"/>` +
+    // Vapor: dos trazos ondulados encima del cuenco.
+    `<path d="M25 21c-2.5-3 2.5-3 0-6" fill="none" stroke="${fg}" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>` +
+    `<path d="M35 21c-2.5-3 2.5-3 0-6" fill="none" stroke="${fg}" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>` +
     `</svg>`
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
