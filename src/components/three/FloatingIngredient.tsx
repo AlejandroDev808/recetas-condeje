@@ -1,6 +1,7 @@
 import { Float, Html } from '@react-three/drei'
 import { Suspense, useState } from 'react'
 import type { Ingredient } from '@/types'
+import { getIngredientImage } from '@/utils/ingredientImage'
 import { IconSprite } from './IconSprite'
 
 interface FloatingIngredientProps {
@@ -48,6 +49,18 @@ export function FloatingIngredient({
             onMouseLeave={() => setHovered(false)}
             className="w-36 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-espresso-500/10 bg-cream-50/95 px-3 py-2.5 text-center shadow-warm-md backdrop-blur-sm transition-transform duration-200 select-none hover:scale-105"
           >
+            {/* Tamaño fijo (w-12 h-12) para que la tarjeta no salte de
+                layout mientras la imagen carga; loading="lazy" porque puede
+                haber muchas tarjetas fuera de la vista inicial en recetas
+                con muchos ingredientes. */}
+            <img
+              src={getIngredientImage(ingredient.name, ingredient.originalName)}
+              alt=""
+              loading="lazy"
+              width={48}
+              height={48}
+              className="mx-auto mb-1.5 h-12 w-12 rounded-full object-cover"
+            />
             <p className="font-display text-sm leading-snug text-espresso-700">
               {ingredient.name}
             </p>
