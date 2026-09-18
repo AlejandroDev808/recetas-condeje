@@ -11,6 +11,7 @@
     "seed:recipes": "tsx scripts/seedRecipes.ts",
     "list:ingredients": "tsx scripts/listIngredients.ts",
     "check:ingredients": "tsx scripts/checkIngredients.ts",
+    "check:icons": "tsx scripts/checkIcons.ts",
     "cap:sync": "npm run build && npx cap sync android",
     "cap:android": "npx cap open android"
   },

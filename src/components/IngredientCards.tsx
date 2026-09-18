@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import type { Ingredient } from '@/types'
-import { getIngredientImage } from '@/utils/ingredientImage'
+import { categoryBackground, getIngredientImage } from '@/utils/ingredientImage'
 
 interface IngredientCardsProps {
   ingredients: Ingredient[]
@@ -45,6 +45,7 @@ export function IngredientCards({ ingredients }: IngredientCardsProps) {
         const measure = [ingredient.quantity, ingredient.unit]
           .filter(Boolean)
           .join(' ')
+        const visual = getIngredientImage(ingredient.name, ingredient.originalName)
 
         return (
           <motion.li
@@ -54,14 +55,24 @@ export function IngredientCards({ ingredients }: IngredientCardsProps) {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="flex h-full flex-col items-center rounded-2xl border border-espresso-500/10 bg-cream-50 px-3 py-4 text-center shadow-warm-sm hover:shadow-warm-md"
           >
-            <img
-              src={getIngredientImage(ingredient.name, ingredient.originalName)}
-              alt=""
-              loading="lazy"
-              width={64}
-              height={64}
-              className="h-16 w-16 rounded-xl object-cover"
-            />
+            {visual.kind === 'image' ? (
+              <img
+                src={visual.src}
+                alt=""
+                loading="lazy"
+                width={64}
+                height={64}
+                className="h-16 w-16 rounded-xl object-cover"
+              />
+            ) : (
+              <div
+                aria-hidden="true"
+                style={{ backgroundColor: categoryBackground(visual.category) }}
+                className="flex h-16 w-16 items-center justify-center rounded-full text-[32px] leading-none"
+              >
+                {visual.icon}
+              </div>
+            )}
             <p className="mt-2 line-clamp-2 font-display text-sm leading-snug text-espresso-700">
               {ingredient.name}
             </p>
